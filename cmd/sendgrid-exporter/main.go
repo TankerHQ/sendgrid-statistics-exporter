@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -116,6 +117,7 @@ type Collector struct {
 }
 
 func newCollector() *Collector {
+	dailyLabels := []string{"type", "name", "day", "month", "year"}
 	return &Collector{
 		up: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: namespace,
@@ -125,97 +127,97 @@ func newCollector() *Collector {
 		dailyblocks: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyblocks"),
 			"dailyblocks",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailybounceDrops: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailybounce_drops"),
 			"dailybounce_drops",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailybounces: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailybounces"),
 			"dailybounces",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyclicks: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyclicks"),
 			"dailyclicks",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailydeferred: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailydeferred"),
 			"dailydeferred",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailydelivered: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailydelivered"),
 			"dailydelivered",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyinvalidEmails: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyinvalid_emails"),
 			"dailyinvalid_emails",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyopens: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyopens"),
 			"dailyopens",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyprocessed: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyprocessed"),
 			"dailyprocessed",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyrequests: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyrequests"),
 			"dailyrequests",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyspamReportDrops: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyspam_report_drops"),
 			"dailyspam_report_drops",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyspamReports: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyspam_reports"),
 			"dailyspam_reports",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyuniqueClicks: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyunique_clicks"),
 			"dailyunique_clicks",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyuniqueOpens: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyunique_opens"),
 			"dailyunique_opens",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyunsubscribeDrops: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyunsubscribe_drops"),
 			"dailyunsubscribe_drops",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		dailyunsubscribes: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "dailyunsubscribes"),
 			"dailyunsubscribes",
-			[]string{"type", "name"},
+			dailyLabels,
 			nil,
 		),
 		monthlyblocks: prometheus.NewDesc(
@@ -356,6 +358,11 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	metrics, err := collectMetrics("day")
 	totalmetrics, err1 := collectMetrics("month")
+	year, month, day := time.Now().Date()
+	yearStr := strconv.Itoa(year)
+	monthStr := strconv.Itoa(int(month))
+	dayStr := strconv.Itoa(day)
+
 	if err != nil {
 		log.Println(err)
 		c.up.Set(0)
@@ -501,6 +508,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Blocks),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailybounceDrops,
@@ -508,6 +518,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.BounceDrops),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailybounces,
@@ -515,6 +528,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Bounces),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyclicks,
@@ -522,6 +538,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Clicks),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailydeferred,
@@ -529,6 +548,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Deferred),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailydelivered,
@@ -536,6 +558,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Delivered),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyinvalidEmails,
@@ -543,6 +568,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.InvalidEmails),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyopens,
@@ -550,6 +578,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Opens),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyprocessed,
@@ -557,6 +588,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Processed),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyrequests,
@@ -564,6 +598,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Requests),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyspamReportDrops,
@@ -571,6 +608,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.SpamReportDrops),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyspamReports,
@@ -578,6 +618,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.SpamReports),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyuniqueClicks,
@@ -585,6 +628,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.UniqueClicks),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyuniqueOpens,
@@ -592,6 +638,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.UniqueOpens),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyunsubscribeDrops,
@@ -599,6 +648,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.UnsubscribeDrops),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.dailyunsubscribes,
@@ -606,6 +658,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s.Metrics.Unsubscribes),
 			s.Type,
 			s.Name,
+			dayStr,
+			monthStr,
+			yearStr,
 		)
 	}
 }
