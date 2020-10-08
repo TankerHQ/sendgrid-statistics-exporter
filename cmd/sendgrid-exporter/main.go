@@ -118,6 +118,7 @@ type Collector struct {
 
 func newCollector() *Collector {
 	dailyLabels := []string{"type", "name", "day", "month", "year"}
+	monthlyLabels := []string{"type", "name", "month", "year"}
 	return &Collector{
 		up: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: namespace,
@@ -223,97 +224,97 @@ func newCollector() *Collector {
 		monthlyblocks: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyblocks"),
 			"monthlyblocks",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlybounceDrops: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlybounce_drops"),
 			"monthlybounce_drops",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlybounces: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlybounces"),
 			"monthlybounces",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyclicks: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyclicks"),
 			"monthlyclicks",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlydeferred: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlydeferred"),
 			"monthlydeferred",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlydelivered: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlydelivered"),
 			"monthlydelivered",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyinvalidEmails: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyinvalid_emails"),
 			"monthlyinvalid_emails",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyopens: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyopens"),
 			"monthlyopens",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyprocessed: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyprocessed"),
 			"monthlyprocessed",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyrequests: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyrequests"),
 			"monthlyrequests",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyspamReportDrops: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyspam_report_drops"),
 			"monthlyspam_report_drops",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyspamReports: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyspam_reports"),
 			"monthlyspam_reports",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyuniqueClicks: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyunique_clicks"),
 			"monthlyunique_clicks",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyuniqueOpens: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyunique_opens"),
 			"monthlyunique_opens",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyunsubscribeDrops: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyunsubscribe_drops"),
 			"monthlyunsubscribe_drops",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 		monthlyunsubscribes: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "monthlyunsubscribes"),
 			"monthlyunsubscribes",
-			[]string{"type", "name"},
+			monthlyLabels,
 			nil,
 		),
 	}
@@ -394,6 +395,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Blocks),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlybounceDrops,
@@ -401,6 +404,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.BounceDrops),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlybounces,
@@ -408,6 +413,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Bounces),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyclicks,
@@ -415,6 +422,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Clicks),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlydeferred,
@@ -422,6 +431,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Deferred),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlydelivered,
@@ -429,6 +440,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Delivered),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyinvalidEmails,
@@ -436,6 +449,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.InvalidEmails),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyopens,
@@ -443,6 +458,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Opens),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyprocessed,
@@ -450,6 +467,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Processed),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyrequests,
@@ -457,6 +476,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Requests),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyspamReportDrops,
@@ -464,6 +485,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.SpamReportDrops),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyspamReports,
@@ -471,6 +494,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.SpamReports),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyuniqueClicks,
@@ -478,6 +503,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.UniqueClicks),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyuniqueOpens,
@@ -485,6 +512,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.UniqueOpens),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyunsubscribeDrops,
@@ -492,6 +521,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.UnsubscribeDrops),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.monthlyunsubscribes,
@@ -499,6 +530,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			float64(s1.Metrics.Unsubscribes),
 			s1.Type,
 			s1.Name,
+			monthStr,
+			yearStr,
 		)
 	}
 	for _, s := range metrics[0].Stats {
